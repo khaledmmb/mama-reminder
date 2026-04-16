@@ -3,41 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ماما ريمندر</title>
+    <title>تذكير</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>نصائح للحمل</h1>
-    <ul>
-        <script>
-            const pregnancyTips = ["اعدلي ضهرك", "كلي وجبات خفيفه علي مدار اليوم", "ارفعي رجلك شويه لو حاسه بتعب", "نامي علي جنبك الشمال", "متشيليش حاجه تقيله", "امشي شويه حتى لو عشر دقايق"];
-            const breastfeedingTips = ["خلي ضهرك مستقيم", "قربي الطفل منك", "اشربي ميه كتير", "خدي نفس عميق", "متتنيش رقبتك", "البسي حاجه مريحه مش ديقه", "ريحي كتفك", "وقت التمارين", "وقت الرضاعه"];
-            const audioMapping = {
-                // Replace with actual audio file paths
-                "اعدلي ضهرك": "audio/تسمية1.mp3",
-                "كلي وجبات خفيفه علي مدار اليوم": "audio/تسمية2.mp3",
-                "ارفعي رجلك شويه لو حاسه بتعب": "audio/تسمية3.mp3",
-                "نامي علي جنبك الشمال": "audio/تسمية4.mp3",
-                "متشيليش حاجه تقيله": "audio/تسمية5.mp3",
-                "امشي شويه حتى لو عشر دقايق": "audio/تسمية6.mp3",
-                "خلي ضهرك مستقيم": "audio/تسمية7.mp3",
-                "قربي الطفل منك": "audio/تسمية8.mp3",
-                "اشربي ميه كتير": "audio/تسمية9.mp3",
-                "خدي نفس عميق": "audio/تسمية10.mp3",
-                "متتنيش رقبتك": "audio/تسمية11.mp3",
-                "البسي حاجه مريحه مش ديقه": "audio/تسمية12.mp3",
-                "ريحي كتفك": "audio/تسمية13.mp3",
-                "وقت التمارين": "audio/تسمية14.mp3",
-                "وقت الرضاعه": "audio/تسمية15.mp3"
-            };
-
-            function playSound(tip) {
-                const audioFile = audioMapping[tip];
-                if (audioFile) {
-                    const audio = new Audio(audioFile);
-                    audio.play();
-                }
-            }
-        </script>
-    </ul>
+    <header>
+        <h1>تطبيق التذكير</h1>
+    </header>
+    <main>
+        <section>
+            <h2>نصائح</h2>
+            <ul>
+                <li data-audio="audio/tip1.mp3" style="volume: 1.0;">نصيحة 1: اشرب الماء!</li>
+                <li data-audio="audio/tip2.mp3" style="volume: 1.0;">نصيحة 2: قم بتمرينات الإطالة!</li>
+                <li data-audio="audio/tip3.mp3" style="volume: 1.0;">نصيحة 3: خذ استراحة قصيرة!</li>
+            </ul>
+        </section>
+        <section>
+            <h2>الإشعارات</h2>
+            <button id="notifyBtn">احصل على إشعار</button>
+        </section>
+    </main>
+    <script src="script.js"></script>
 </body>
 </html>
