@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>دليل الحمل والرضاعة - إشعارات للجوال</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Tahoma', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #fdeff2 0%, #fff5f7 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .app-container {
+            max-width: 550px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 48px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .app-header {
+            background: #ff9eb5;
+            padding: 20px 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .app-header h1 {
+            font-size: 1.7rem;
+        }
+
+        .page {
+            padding: 28px 24px 32px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .btn-start, .test-notif-btn {
+            background: #ff7b9c;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 16px;
+            width: 100%;
+            border-radius: 100px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        .test-notif-btn {
+            background: #9b59b6;
+            font-size: 1.2rem;
+        }
+
+        .option-btn {
+            background: #ffe3e9;
+            border: none;
+            color: #a13e57;
+            font-size: 1.3rem;
+            padding: 18px;
+            width: 100%;
+            border-radius: 60px;
+            margin: 16px 0;
+            cursor: pointer;
+        }
+
+        .tips-list {
+            background: #fff0f3;
+            border-radius: 32px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .tip-item {
+            background: white;
+            padding: 12px 18px;
+            margin: 10px 0;
+            border-radius: 60px;
+            border-right: 5px solid #ff9eb5;
+        }
+
+        .notification-panel {
+            background: #f9e6eb;
+            border-radius: 28px;
+            padding: 18px;
+            margin: 20px 0;
+        }
+
+        .control-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        select, input {
+            background: white;
+            border: 1px solid #ffb7c9;
+            padding: 8px 12px;
+            border-radius: 40px;
+        }
+
+        .save-settings-btn, .back-btn {
+            background: #ff9eb5;
+            border: none;
+            padding: 12px;
+            border-radius: 60px;
+            width: 100%;
+            margin-top: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            background: #ece2e5;
+            color: #5c3b46;
+        }
+
+        .status-badge {
+            background: #ffdce4;
+            border-radius: 50px;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            margin: 10px 0;
+        }
+
+        .warning {
+            background: #ffe0b3;
+            color: #a55d00;
+            padding: 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 12px;
+            color: #ac8a94;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="app-header">
+        <h1>👶🏻🌷 دليلكِ</h1>
+        <p>نصائح الحمل والرضاعة • إشعارات للجوال</p>
+    </div>
+
+    <div id="homePage" class="page">
+        <button id="startBtn" class="btn-start">✨ ابدأي الآن ✨</button>
+        <button id="testNotificationBtn" class="test-notif-btn">🔔 اختبر الإشعار</button>
+        <div class="notification-panel">
+            <h3 style="color:#b13e5e;">⚙️ إعدادات الإشعارات</h3>
+            <div class="control-group">
+                <label>📢 تفعيل الإشعارات:</label>
+                <input type="checkbox" id="notifToggle" checked>
+            </div>
+            <div class="control-group">
+                <label>⏱️ التكرار (ثانية):</label>
+                <select id="intervalSelect">
+                    <option value="10">كل 10 ثوانٍ</option>
+                    <option value="30" selected>كل 30 ثانية (أنسب للجوال)</option>
+                    <option value="60">كل دقيقة</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>🔊 الصوت:</label>
+                <input type="checkbox" id="soundToggle" checked>
+            </div>
+            <button id="saveSettingsBtn" class="save-settings-btn">💾 حفظ الإعدادات</button>
+            <div class="status-badge" id="notificationStatus">🔔 الحالة: جاري التحقق...</div>
+            <div class="warning" id="securityWarning"></div>
+        </div>
+    </div>
+
+    <div id="optionsPage" class="page hidden">
+        <button id="pregnancyBtn" class="option-btn">🤰 أثناء الحمل</button>
+        <button id="breastfeedBtn" class="option-btn">🍼 أثناء الرضاعة</button>
+        <button id="backHomeFromOptions" class="back-btn">🔙 الرئيسية</button>
+    </div>
+
+    <div id="pregnancyTipsPage" class="page hidden">
+        <div class="tips-list" id="pregnancyTipsList"></div>
+        <button id="backToOptionsFromPreg" class="back-btn">🔙 رجوع</button>
+        <button id="homeFromPreg" class="back-btn">🏠 الرئيسية</button>
+    </div>
+
+    <div id="breastfeedTipsPage" class="page hidden">
+        <div class="tips-list" id="breastfeedTipsList"></div>
+        <button id="backToOptionsFromBreast" class="back-btn">🔙 رجوع</button>
+        <button id="homeFromBreast" class="back-btn">🏠 الرئيسية</button>
+    </div>
+    <footer>⭐ تأكدي من منح إذن الإشعارات • يفضل استخدام HTTPS أو localhost</footer>
+</div>
+
+<script>
+    // قوائم النصائح
+    const pregnancyTips = [
+        "افردي ضهرك ولا تجلسين منحنية",
+        "كلي وجبات خفيفة غنية بالحديد",
+        "ارفعي رجليك للتخفيف من التورم",
+        "نامي على جنبك الأيسر",
+        "تجنبي حمل الأشياء الثقيلة",
+        "امشِ 10 دقائق يومياً",
+        "اشربي ماء بكثرة",
+        "خذي حماماً دافئاً للاسترخاء"
+    ];
+    const breastfeedingTips = [
+        "اجلسي بوضعية مريحة مع دعم الظهر",
+        "قربي الطفل من ثديكِ، لا تميلي برقبتك",
+        "اشربي الكثير من الماء والسوائل",
+        "تنفسي بعمق أثناء الرضاعة",
+        "لا تثني رقبتك، استخدمي وسادة",
+        "ارتدي ملابس قطنية مريحة",
+        "خصصي وقتاً للراحة بعد الرضاعة",
+        "مارسي تمارين إطالة خفيفة"
+    ];
+
+    // عناصر DOM
+    const homePage = document.getElementById('homePage');
+    const optionsPage = document.getElementById('optionsPage');
+    const pregnancyPage = document.getElementById('pregnancyTipsPage');
+    const breastfeedPage = document.getElementById('breastfeedTipsPage');
+    const notifToggle = document.getElementById('notifToggle');
+    const intervalSelect = document.getElementById('intervalSelect');
+    const soundToggle = document.getElementById('soundToggle');
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    const statusDiv = document.getElementById('notificationStatus');
+    const securityWarning = document.getElementById('securityWarning');
+
+    // متغيرات
+    let notifInterval = null;
+    let currentContext = "pregnancy";
+    let isNotifEnabled = true;
+    let isSoundEnabled = true;
+    let intervalSeconds = 30;
+    let audioCtx = null;
+
+    // عرض النصائح في الصفحات
+    function loadTips() {
+        const pregContainer = document.getElementById('pregnancyTipsList');
+        const breastContainer = document.getElementById('breastfeedTipsList');
+        pregContainer.innerHTML = pregnancyTips.map(t => `<div class="tip-item">🌸 ${t}</div>`).join('');
+        breastContainer.innerHTML = breastfeedingTips.map(t => `<div class="tip-item">🌸 ${t}</div>`).join('');
+    }
+    loadTips();
+
+    // دالة الصوت
+    function playSound() {
+        if (!isSoundEnabled) return;
+        try {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = 880;
+            gain.gain.value = 0.2;
+            osc.type = "sine";
+            osc.start();
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.5);
+            osc.stop(audioCtx.currentTime + 0.4);
+        } catch(e) { console.warn("صوت غير مدعوم"); }
+    }
+
+    // عرض إشعار
+    function showNotification(tip, context) {
+        if (!isNotifEnabled) return;
+        if (Notification.permission !== 'granted') {
+            updateStatus("⚠️ الإذن غير مفعل - اضغط 'ابدأي' واسمحي بالإشعارات", "warning");
+            return;
+        }
+        const contextName = context === 'pregnancy' ? 'الحمل' : 'الرضاعة';
+        const notification = new Notification("🌷 نصيحة دليلكِ", {
+            body: `${tip}`,
+            icon: "https://cdn-icons-png.flaticon.com/512/3156/3156068.png",
+            vibrate: [200, 100, 200]
+        });
+        playSound();
+        setTimeout(() => notification.close(), 5000);
+        updateStatus(`✅ أرسل إشعار: ${tip.substring(0, 30)}...`, "normal");
+    }
+
+    // إشعار دوري
+    function sendPeriodicNotification() {
+        if (!isNotifEnabled) return;
+        const tips = currentContext === 'pregnancy' ? pregnancyTips : breastfeedingTips;
+        const randomTip = tips[Math.floor(Math.random() * tips.length)];
+        showNotification(randomTip, currentContext);
+    }
+
+    // إعادة تشغيل المؤقت
+    function restartTimer() {
+        if (notifInterval) clearInterval(notifInterval);
+        if (isNotifEnabled && Notification.permission === 'granted' && intervalSeconds > 0) {
+            notifInterval = setInterval(sendPeriodicNotification, intervalSeconds * 1000);
+            updateStatus(`🔔 مفعلة • كل ${intervalSeconds} ثانية • السياق: ${currentContext === 'pregnancy' ? 'حمل' : 'رضاعة'}`, "normal");
+        } else {
+            updateStatus(isNotifEnabled ? "⏸️ الإشعارات معلقة (انتظار الإذن)" : "🔕 الإشعارات معطلة", "normal");
+        }
+    }
+
+    // حفظ الإعدادات
+    function saveSettings() {
+        isNotifEnabled = notifToggle.checked;
+        isSoundEnabled = soundToggle.checked;
+        intervalSeconds = parseInt(intervalSelect.value, 10);
+        if (isNaN(intervalSeconds)) intervalSeconds = 30;
+        restartTimer();
+        if (isNotifEnabled && Notification.permission === 'granted') {
+            showNotification("تم حفظ الإعدادات بنجاح ✅", currentContext);
+        }
+    }
+
+    // تحديث واجهة الحالة
+    function updateStatus(msg, type) {
+        statusDiv.innerHTML = msg;
+        if (type === 'warning') statusDiv.style.background = "#ffe0b3";
+        else statusDiv.style.background = "#ffdce4";
+    }
+
+    // التحقق من أمان الموقع
+    function checkSecurity() {
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost' && !location.hostname.startsWith('192.168.')) {
+            securityWarning.innerHTML = "⚠️ الموقع يعمل عبر HTTP غير آمن. الإشعارات قد لا تعمل على الجوال. استخدم HTTPS أو localhost للاختبار.";
+        } else {
+            securityWarning.innerHTML = "✅ الاتصال آمن (HTTPS/localhost) - الإشعارات مدعومة.";
+        }
+    }
+
+    // طلب الإذن (يتم استدعاؤها بنقرة المستخدم)
+    function requestNotificationPermission() {
+        if (Notification.permission === 'granted') {
+            updateStatus("✅ لديك إذن الإشعارات مسبقاً", "normal");
+            restartTimer();
+            return Promise.resolve(true);
+        } else if (Notification.permission !== 'denied') {
+            return Notification.requestPermission().then(perm => {
+                if (perm === 'granted') {
+                    updateStatus("✅ تم منح الإذن، ستبدأ الإشعارات", "normal");
+                    restartTimer();
+                    return true;
+                } else {
+                    updateStatus("❌ تم رفض الإذن، لن تعمل الإشعارات", "warning");
+                    return false;
+                }
+            });
+        } else {
+            updateStatus("❌ الإشعارات محظورة في المتصفح. اذهب إلى إعدادات الموقع واسمح بها.", "warning");
+            return Promise.resolve(false);
+        }
+    }
+
+    // تغيير السياق
+    function setContext(context) {
+        currentContext = context;
+        if (isNotifEnabled && Notification.permission === 'granted') {
+            showNotification(`الآن أنتِ في قسم ${context === 'pregnancy' ? 'الحمل' : 'الرضاعة'}`, context);
+        }
+    }
+
+    // أزرار التنقل
+    document.getElementById('startBtn').onclick = async () => {
+        homePage.classList.add('hidden');
+        optionsPage.classList.remove('hidden');
+        await requestNotificationPermission();
+        // تفعيل الصوت عند أول نقرة
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    };
+    document.getElementById('testNotificationBtn').onclick = () => {
+        if (Notification.permission === 'granted') {
+            showNotification("هذا إشعار تجريبي! ✅", currentContext);
+        } else {
+            requestNotificationPermission().then(granted => {
+                if (granted) showNotification("إشعار تجريبي بعد السماح", currentContext);
+                else alert("الرجاء السماح بالإشعارات أولاً");
+            });
+        }
+    };
+    document.getElementById('pregnancyBtn').onclick = () => {
+        optionsPage.classList.add('hidden');
+        pregnancyPage.classList.remove('hidden');
+        setContext('pregnancy');
+    };
+    document.getElementById('breastfeedBtn').onclick = () => {
+        optionsPage.classList.add('hidden');
+        breastfeedPage.classList.remove('hidden');
+        setContext('breastfeed');
+    };
+    document.getElementById('backHomeFromOptions').onclick = () => {
+        optionsPage.classList.add('hidden');
+        homePage.classList.remove('hidden');
+    };
+    document.getElementById('backToOptionsFromPreg').onclick = () => {
+        pregnancyPage.classList.add('hidden');
+        optionsPage.classList.remove('hidden');
+    };
+    document.getElementById('homeFromPreg').onclick = () => {
+        pregnancyPage.classList.add('hidden');
+        homePage.classList.remove('hidden');
+    };
+    document.getElementById('backToOptionsFromBreast').onclick = () => {
+        breastfeedPage.classList.add('hidden');
+        optionsPage.classList.remove('hidden');
+    };
+    document.getElementById('homeFromBreast').onclick = () => {
+        breastfeedPage.classList.add('hidden');
+        homePage.classList.remove('hidden');
+    };
+    saveSettingsBtn.onclick = saveSettings;
+
+    // التحقق من الإذن عند التحميل
+    window.onload = () => {
+        checkSecurity();
+        if (Notification.permission === 'granted') {
+            updateStatus("✅ الإذن موجود مسبقاً - يمكنك البدء", "normal");
+        } else {
+            updateStatus("🔘 اضغط 'ابدأي الآن' لمنح الإذن للإشعارات", "normal");
+        }
+    };
+</script>
+</body>
+</html>
