@@ -123,6 +123,16 @@
             color: #ac8a94;
         }
     </style>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3156/3156068.png">
+    <script>
+      // تسجيل Service Worker (مهم جداً للإشعارات على Android)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('✅ Service Worker registered'))
+          .catch(err => console.error('Service Worker error:', err));
+      }
+    </script>
 </head>
 <body>
 <div class="app-container">
@@ -214,14 +224,14 @@
     const startBtn = document.getElementById('startBtn');
 
     // ===================== متغيرات الحالة =====================
-    let currentContext = "pregnancy";   // 'pregnancy' or 'breastfeed'
+    let currentContext = "pregnancy";
     let isNotifEnabled = true;
     let isSoundEnabled = true;
     let isVibrateEnabled = true;
-    let intervalSeconds = 60;            // افتراضي 60 ثانية
-    let timerId = null;                  // معرف setTimeout
-    let isPageVisible = true;            // تتبع رؤية الصفحة
-    let lastNotificationTime = 0;        // لمنع الإشعارات الفورية المتكررة عند العودة
+    let intervalSeconds = 60;
+    let timerId = null;
+    let isPageVisible = true;
+    let lastNotificationTime = 0;
 
     // ===================== دوال مساعدة =====================
     function updateStatus(msg, isError = false) {
@@ -229,14 +239,12 @@
         statusDiv.style.background = isError ? "#ffe0b3" : "#ffdce4";
     }
 
-    // عرض النصائح في الصفحات
     function loadTips() {
         document.getElementById('pregnancyList').innerHTML = pregnancyTips.map(t => `<div class="tip-item">🌸 ${t}</div>`).join('');
         document.getElementById('breastfeedList').innerHTML = breastfeedingTips.map(t => `<div class="tip-item">🌸 ${t}</div>`).join('');
     }
     loadTips();
 
-    // تشغيل الصوت (نغمة قصيرة)
     let audioCtx = null;
     function playSound() {
         if (!isSoundEnabled) return;
@@ -256,61 +264,63 @@
         } catch(e) { console.warn("صوت غير مدعوم"); }
     }
 
-    // اهتزاز
     function vibrate() {
         if (isVibrateEnabled && navigator.vibrate) {
             navigator.vibrate(200);
         }
     }
 
-    // عرض إشعار فعلي
-    function showNotification(tipText, contextName) {
+    // ===================== الدالة الجديدة للإشعارات (باستخدام Service Worker) =====================
+    async function showNotification(tipText, contextName) {
         if (!isNotifEnabled) return;
+
         if (Notification.permission !== 'granted') {
             updateStatus("⚠️ الإذن غير مفعل - اضغط 'ابدأ' واسمح", true);
             return;
         }
-        const contextDisplay = contextName === 'pregnancy' ? 'الحمل' : 'الرضاعة';
-        const notification = new Notification("🌷 نصيحة دليلكِ", {
-            body: `${tipText}`,
-            icon: "https://cdn-icons-png.flaticon.com/512/3156/3156068.png",
-            silent: true,   // نتحكم بالصوت يدوياً
-            vibrate: isVibrateEnabled ? [200,100,200] : undefined
-        });
-        playSound();
-        vibrate();
-        setTimeout(() => notification.close(), 6000);
-        lastNotificationTime = Date.now();
-        updateStatus(`✅ أرسل: ${tipText.substring(0, 35)}...`);
+
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            registration.showNotification("🌷 نصيحة دليلكِ", {
+                body: tipText,
+                icon: "https://cdn-icons-png.flaticon.com/512/3156/3156068.png",
+                badge: "https://cdn-icons-png.flaticon.com/512/3156/3156068.png",
+                vibrate: isVibrateEnabled ? [200, 100, 200] : undefined,
+                requireInteraction: false
+            });
+
+            playSound();
+            vibrate();
+            lastNotificationTime = Date.now();
+            updateStatus(`✅ أرسل: ${tipText.substring(0, 35)}...`);
+        } catch (e) {
+            console.error("Notification error", e);
+            updateStatus("❌ خطأ في الإشعار", true);
+        }
     }
 
-    // إرسال إشعار دوري (يتم استدعاؤها من المؤقت)
+    // باقي الكود بدون تغيير (sendPeriodicNotification, scheduleNextNotification, etc.)
     function sendPeriodicNotification() {
         if (!isNotifEnabled) return;
         if (Notification.permission !== 'granted') return;
-        if (!isPageVisible) {
-            // إذا كانت الصفحة غير مرئية، لا نرسل إشعاراً الآن (سنرسل عند العودة)
-            return;
-        }
+        if (!isPageVisible) return;
         const tips = currentContext === 'pregnancy' ? pregnancyTips : breastfeedingTips;
         const randomTip = tips[Math.floor(Math.random() * tips.length)];
         showNotification(randomTip, currentContext);
     }
 
-    // جدولة الإشعار التالي (باستخدام setTimeout بدلاً من setInterval)
     function scheduleNextNotification() {
         if (timerId) clearTimeout(timerId);
         if (!isNotifEnabled) return;
         if (Notification.permission !== 'granted') return;
-        if (!isPageVisible) return;  // إذا كانت الصفحة مخفية لا نجدول شيئاً
+        if (!isPageVisible) return;
         
         timerId = setTimeout(() => {
             sendPeriodicNotification();
-            scheduleNextNotification(); // إعادة الجدولة بعد الإرسال
+            scheduleNextNotification();
         }, intervalSeconds * 1000);
     }
 
-    // إيقاف الجدولة بالكامل
     function stopNotifications() {
         if (timerId) {
             clearTimeout(timerId);
@@ -318,7 +328,6 @@
         }
     }
 
-    // إعادة تشغيل الجدولة بناءً على الإعدادات الحالية وحالة الرؤية
     function restartNotifications() {
         stopNotifications();
         if (isNotifEnabled && Notification.permission === 'granted' && isPageVisible) {
@@ -329,11 +338,9 @@
         }
     }
 
-    // عند عودة الصفحة للرؤية، نرسل إشعاراً فورياً (واحد) ثم نستأنف الجدولة
     function onPageVisible() {
         if (!isPageVisible) return;
         if (isNotifEnabled && Notification.permission === 'granted') {
-            // إرسال إشعار ترحيبي فوري (تجنب الإرسال إذا كان آخر إشعار قبل أقل من 10 ثوانٍ)
             const now = Date.now();
             if (now - lastNotificationTime > 10000) {
                 const tips = currentContext === 'pregnancy' ? pregnancyTips : breastfeedingTips;
@@ -344,7 +351,6 @@
         }
     }
 
-    // ===================== مراقبة رؤية الصفحة =====================
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             isPageVisible = false;
@@ -356,7 +362,6 @@
         }
     });
 
-    // ===================== طلب إذن الإشعارات =====================
     function requestNotificationPermission() {
         if (Notification.permission === 'granted') {
             updateStatus("✅ الإذن موجود");
@@ -379,7 +384,6 @@
         }
     }
 
-    // ===================== حفظ الإعدادات من الواجهة =====================
     function saveSettings() {
         isNotifEnabled = notifToggle.checked;
         isSoundEnabled = soundToggle.checked;
@@ -390,7 +394,6 @@
         stopNotifications();
         if (isNotifEnabled && Notification.permission === 'granted' && isPageVisible) {
             restartNotifications();
-            // إشعار تأكيدي
             showNotification("تم حفظ الإعدادات ✅", currentContext);
         } else if (isNotifEnabled && Notification.permission !== 'granted') {
             requestNotificationPermission().then(() => restartNotifications());
@@ -399,22 +402,22 @@
         }
     }
 
-    // ===================== تغيير السياق (حمل/رضاعة) =====================
     function setContext(context) {
         currentContext = context;
         if (isNotifEnabled && Notification.permission === 'granted' && isPageVisible) {
             showNotification(`الآن أنتِ في قسم ${context === 'pregnancy' ? 'الحمل 🤰' : 'الرضاعة 🍼'}`, context);
         }
-        restartNotifications(); // لإعادة الجدولة (نفس السياق)
+        restartNotifications();
     }
 
-    // ===================== التنقل بين الصفحات =====================
+    // ===================== التنقل =====================
     startBtn.onclick = async () => {
         home.classList.add('hidden');
         options.classList.remove('hidden');
         await requestNotificationPermission();
         if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     };
+
     testBtn.onclick = async () => {
         if (Notification.permission === 'granted') {
             showNotification("✅ هذا إشعار تجريبي! التطبيق يعمل", currentContext);
@@ -427,6 +430,7 @@
             }
         }
     };
+
     document.getElementById('pregnancyBtn').onclick = () => {
         options.classList.add('hidden');
         pregPage.classList.remove('hidden');
@@ -459,9 +463,7 @@
     };
     saveBtn.onclick = saveSettings;
 
-    // ===================== تهيئة أولية =====================
     function init() {
-        // قراءة الإعدادات من الواجهة (القيم الافتراضية)
         isNotifEnabled = notifToggle.checked;
         isSoundEnabled = soundToggle.checked;
         isVibrateEnabled = vibrateToggle.checked;
@@ -471,7 +473,6 @@
         } else {
             updateStatus("🔘 اضغط 'ابدأي الآن' لمنح الإذن");
         }
-        // التأكد من أن الصفحة مرئية في البداية
         isPageVisible = !document.hidden;
     }
     init();
