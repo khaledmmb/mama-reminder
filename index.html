@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>دليلكِ - نصائح الحمل والرضاعة</title>
+    <title>دليل الحمل والرضاعة</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background: linear-gradient(145deg, #fdeff2 0%, #fff5f7 100%);
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
             padding: 16px;
         }
-        .app-container {
+        .container {
             max-width: 550px;
             width: 100%;
             background: rgba(255,255,255,0.95);
@@ -23,50 +23,40 @@
             box-shadow: 0 25px 45px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-        .app-header {
+        .header {
             background: #ff9eb5;
-            padding: 20px 24px;
+            padding: 20px;
             text-align: center;
             color: white;
         }
-        .app-header h1 { font-size: 1.7rem; }
-        .page { padding: 28px 24px 32px; }
+        .header h1 { font-size: 1.7rem; }
+        .page { padding: 28px 24px; }
         .hidden { display: none; }
-        .btn-start, .test-btn {
+        button {
             background: #ff7b9c;
             border: none;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
             padding: 16px;
             width: 100%;
-            border-radius: 100px;
+            border-radius: 60px;
+            margin: 12px 0;
             cursor: pointer;
-            margin: 10px 0;
-            transition: transform 0.05s;
         }
-        .btn-start:active, .test-btn:active { transform: scale(0.97); }
-        .test-btn { background: #9b59b6; font-size: 1.2rem; }
         .option-btn {
             background: #ffe3e9;
-            border: none;
             color: #a13e57;
-            font-size: 1.3rem;
-            padding: 18px;
-            width: 100%;
-            border-radius: 60px;
-            margin: 16px 0;
-            cursor: pointer;
-            transition: transform 0.05s;
         }
-        .option-btn:active { transform: scale(0.97); background: #ffcdd9; }
+        .back-btn {
+            background: #ece2e5;
+            color: #5c3b46;
+        }
         .tips-list {
             background: #fff0f3;
             border-radius: 32px;
             padding: 20px;
             margin: 20px 0;
-            max-height: 400px;
-            overflow-y: auto;
         }
         .tip-item {
             background: white;
@@ -74,46 +64,7 @@
             margin: 10px 0;
             border-radius: 60px;
             border-right: 5px solid #ff9eb5;
-            font-size: 1rem;
         }
-        .notification-panel {
-            background: #f9e6eb;
-            border-radius: 28px;
-            padding: 18px;
-            margin: 20px 0;
-        }
-        .control-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 12px 0;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        select, input, .volume-slider {
-            background: white;
-            border: 1px solid #ffb7c9;
-            padding: 8px 12px;
-            border-radius: 40px;
-            font-size: 0.9rem;
-        }
-        .volume-slider {
-            width: 150px;
-            cursor: pointer;
-        }
-        .save-btn, .back-btn {
-            background: #ff9eb5;
-            border: none;
-            padding: 12px;
-            border-radius: 60px;
-            width: 100%;
-            margin-top: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.05s;
-        }
-        .save-btn:active, .back-btn:active { transform: scale(0.97); }
-        .back-btn { background: #ece2e5; color: #5c3b46; }
         .status {
             background: #ffdce4;
             border-radius: 50px;
@@ -122,90 +73,53 @@
             font-size: 0.8rem;
             margin: 10px 0;
         }
-        .install-note {
-            background: #e8f0fe;
-            color: #1a5a8a;
-            padding: 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            text-align: center;
-            margin-top: 10px;
-        }
         footer {
             font-size: 0.7rem;
             text-align: center;
             padding: 12px;
             color: #ac8a94;
         }
-        @media (max-width: 480px) {
-            .btn-start, .test-btn, .option-btn { font-size: 1.2rem; padding: 14px; }
-            .control-group label { font-size: 0.9rem; }
-        }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <div class="app-header">
+<div class="container">
+    <div class="header">
         <h1>👶🏻🌷 دليلكِ</h1>
-        <p>نصائح الحمل والرضاعة • صوت عالٍ • إشعارات</p>
+        <p>نصائح الحمل والرضاعة</p>
     </div>
 
+    <!-- الصفحة الرئيسية -->
     <div id="homePage" class="page">
-        <button id="startBtn" class="btn-start">✨ ابدأي الآن ✨</button>
-        <button id="testBtn" class="test-btn">🔔 اختبر الإشعار والصوت</button>
-        <div class="notification-panel">
-            <h3 style="color:#b13e5e;">⚙️ إعدادات الإشعارات</h3>
-            <div class="control-group">
-                <label>📢 تفعيل الإشعارات:</label>
-                <input type="checkbox" id="notifToggle" checked>
-            </div>
-            <div class="control-group">
-                <label>⏱️ التكرار (ثانية):</label>
-                <select id="intervalSelect">
-                    <option value="10">كل 10 ثوانٍ</option>
-                    <option value="30" selected>كل 30 ثانية</option>
-                    <option value="60">كل 60 ثانية</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>🔊 جهارة الصوت (بالمئة):</label>
-                <input type="range" id="volumeBoost" class="volume-slider" min="50" max="200" value="150" step="5">
-                <span id="volumeValue">150%</span>
-            </div>
-            <div class="control-group">
-                <label>📳 الاهتزاز:</label>
-                <input type="checkbox" id="vibrateToggle" checked>
-            </div>
-            <button id="saveBtn" class="save-btn">💾 حفظ الإعدادات</button>
-            <div class="status" id="statusMsg">🔔 جاهزة</div>
-            <div class="install-note">
-                📱 لتحسين الإشعارات على الهاتف: أضف هذا الموقع إلى الشاشة الرئيسية (⋮ → إضافة إلى الشاشة الرئيسية)
-            </div>
-        </div>
+        <button id="startBtn">✨ ابدأي الآن ✨</button>
+        <button id="testBtn">🔔 اختبر الإشعار</button>
+        <div class="status" id="statusMsg">🔘 اضغط ابدأي الآن لمنح الإذن</div>
+        <footer>⭐ الإشعارات ستعمل عند فتح التطبيق</footer>
     </div>
 
+    <!-- صفحة الخيارات -->
     <div id="optionsPage" class="page hidden">
         <button id="pregnancyBtn" class="option-btn">🤰 أثناء الحمل</button>
         <button id="breastfeedBtn" class="option-btn">🍼 أثناء الرضاعة</button>
-        <button id="backHomeOptions" class="back-btn">🔙 الرئيسية</button>
+        <button id="backHome" class="back-btn">🔙 الرئيسية</button>
     </div>
 
+    <!-- صفحة نصائح الحمل -->
     <div id="pregnancyPage" class="page hidden">
         <div class="tips-list" id="pregnancyList"></div>
         <button id="backToOptionsPreg" class="back-btn">🔙 رجوع</button>
         <button id="homeFromPreg" class="back-btn">🏠 الرئيسية</button>
     </div>
 
+    <!-- صفحة نصائح الرضاعة -->
     <div id="breastfeedPage" class="page hidden">
         <div class="tips-list" id="breastfeedList"></div>
         <button id="backToOptionsBreast" class="back-btn">🔙 رجوع</button>
         <button id="homeFromBreast" class="back-btn">🏠 الرئيسية</button>
     </div>
-    <footer>⭐ نصائح نصية مع صوت عالٍ • الإشعارات تعمل أثناء فتح التطبيق</footer>
 </div>
 
 <script>
-    // قوائم النصائح
+    // النصائح
     const pregnancyTips = [
         "ارفعي رجلك شويه لو حاسه بتعب",
         "اشربي ميه كتير",
@@ -223,217 +137,116 @@
         "قربي الطفل منك",
         "متتنيش رقبتك",
         "متشيليش حاجه تقيله",
-        "خذي وقتك في التمارين الخفيفة",
+        "خذي وقتك في التمارين",
         "استرخي أثناء الرضاعة"
     ];
 
-    // عناصر DOM
+    // عناصر الصفحات
     const homePage = document.getElementById('homePage');
     const optionsPage = document.getElementById('optionsPage');
     const pregnancyPageDiv = document.getElementById('pregnancyPage');
     const breastfeedPageDiv = document.getElementById('breastfeedPage');
-    const notifToggle = document.getElementById('notifToggle');
-    const intervalSelect = document.getElementById('intervalSelect');
-    const volumeSlider = document.getElementById('volumeBoost');
-    const volumeSpan = document.getElementById('volumeValue');
-    const vibrateToggle = document.getElementById('vibrateToggle');
-    const saveBtn = document.getElementById('saveBtn');
     const statusDiv = document.getElementById('statusMsg');
-    const testBtn = document.getElementById('testBtn');
-    const startBtn = document.getElementById('startBtn');
 
     let currentContext = "pregnancy";
-    let isNotifEnabled = true;
-    let isVibrateEnabled = true;
-    let intervalSeconds = 30;
-    let volumePercent = 150;
-    let timerId = null;
-    let isPageVisible = true;
-    let lastNotificationTime = 0;
-    let audioCtx = null;
+    let notificationInterval = null;
+    let permissionGranted = false;
 
-    volumeSlider.addEventListener('input', () => {
-        volumePercent = parseInt(volumeSlider.value);
-        volumeSpan.innerText = volumePercent + '%';
-    });
-
-    async function playBeep() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            await audioCtx.resume();
-        }
-        const gainValue = Math.min(volumePercent / 100, 2.0);
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.frequency.value = 880;
-        gainNode.gain.value = gainValue;
-        oscillator.type = "sine";
-        oscillator.start();
-        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.6);
-        oscillator.stop(audioCtx.currentTime + 0.5);
-    }
-
-    function vibrate() {
-        if (isVibrateEnabled && navigator.vibrate) {
-            navigator.vibrate(200);
-        }
-    }
-
-    function showNotification(tipText) {
-        if (!isNotifEnabled) return false;
-        if (Notification.permission !== 'granted') return false;
-        const options = {
-            body: tipText,
-            icon: "https://cdn-icons-png.flaticon.com/512/3156/3156068.png",
-            vibrate: isVibrateEnabled ? [200,100,200] : undefined
-        };
-        if (!isVibrateEnabled) options.silent = true;
-        const notification = new Notification("🌷 نصيحة دليلكِ", options);
-        setTimeout(() => notification.close(), 6000);
-        lastNotificationTime = Date.now();
-        return true;
-    }
-
-    async function sendRandomTip(showAlerts = false) {
-        if (!isNotifEnabled) {
-            if (showAlerts) alert("⚠️ الإشعارات معطلة في الإعدادات.");
-            return false;
-        }
-        if (Notification.permission !== 'granted') {
-            if (showAlerts) alert("⚠️ لم يتم منح إذن الإشعارات. اضغط على 'ابدأي الآن' أولاً.");
-            return false;
-        }
-        if (!isPageVisible) {
-            if (showAlerts) alert("⚠️ التطبيق في الخلفية، افتحه أولاً.");
-            return false;
-        }
-        const tips = (currentContext === 'pregnancy') ? pregnancyTips : breastfeedingTips;
-        const randomIndex = Math.floor(Math.random() * tips.length);
-        const tip = tips[randomIndex];
-        showNotification(tip);
-        await playBeep();
-        vibrate();
-        updateStatus(`📢 تم: ${tip} (جهارة ${volumePercent}%)`);
-        return true;
-    }
-
-    function scheduleNext() {
-        if (timerId) clearTimeout(timerId);
-        if (!isNotifEnabled || Notification.permission !== 'granted' || !isPageVisible) return;
-        timerId = setTimeout(() => {
-            sendRandomTip(false);
-            scheduleNext();
-        }, intervalSeconds * 1000);
-    }
-
-    function stopScheduler() {
-        if (timerId) { clearTimeout(timerId); timerId = null; }
-    }
-
-    function restartScheduler() {
-        stopScheduler();
-        if (isNotifEnabled && Notification.permission === 'granted' && isPageVisible) {
-            scheduleNext();
-            updateStatus(`🔔 مفعلة • كل ${intervalSeconds} ثانية • ${currentContext === 'pregnancy' ? 'حمل' : 'رضاعة'} • جهارة ${volumePercent}%`);
-        } else {
-            updateStatus(isNotifEnabled ? "⏸️ معلقة" : "🔕 معطلة");
-        }
-    }
-
-    function onPageVisible() {
-        if (!isPageVisible) return;
-        if (isNotifEnabled && Notification.permission === 'granted') {
-            const now = Date.now();
-            if (now - lastNotificationTime > 10000) sendRandomTip(false);
-            restartScheduler();
-        }
-    }
-
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            isPageVisible = false;
-            stopScheduler();
-            updateStatus("⏸️ توقفت الإشعارات (التطبيق في الخلفية)");
-        } else {
-            isPageVisible = true;
-            onPageVisible();
-        }
-    });
-
-    function requestNotificationPermission() {
-        if (Notification.permission === 'granted') {
-            updateStatus("✅ الإذن موجود");
-            restartScheduler();
-            return Promise.resolve(true);
-        } else if (Notification.permission !== 'denied') {
-            return Notification.requestPermission().then(perm => {
-                if (perm === 'granted') {
-                    updateStatus("✅ تم منح الإذن");
-                    restartScheduler();
-                    return true;
-                } else {
-                    updateStatus("❌ تم رفض الإذن", true);
-                    return false;
-                }
-            });
-        } else {
-            updateStatus("❌ الإشعارات محظورة - اذهب لإعدادات الموقع واسمح بها", true);
-            return Promise.resolve(false);
-        }
-    }
-
-    function saveSettings() {
-        isNotifEnabled = notifToggle.checked;
-        isVibrateEnabled = vibrateToggle.checked;
-        intervalSeconds = parseInt(intervalSelect.value, 10);
-        if (isNaN(intervalSeconds)) intervalSeconds = 30;
-        volumePercent = parseInt(volumeSlider.value);
-        volumeSpan.innerText = volumePercent + '%';
-        stopScheduler();
-        if (isNotifEnabled && Notification.permission === 'granted' && isPageVisible) {
-            restartScheduler();
-            showNotification("تم حفظ الإعدادات 🔊");
-            playBeep();
-        } else if (isNotifEnabled && Notification.permission !== 'granted') {
-            requestNotificationPermission().then(() => restartScheduler());
-        } else {
-            updateStatus("🔕 الإشعارات معطلة");
-        }
-    }
-
-    function setContext(context) {
-        currentContext = context;
-        if (isNotifEnabled && Notification.permission === 'granted' && isPageVisible) {
-            showNotification(`الآن أنتِ في قسم ${context === 'pregnancy' ? 'الحمل 🤰' : 'الرضاعة 🍼'}`);
-            playBeep();
-        }
-        restartScheduler();
-    }
-
-    function displayTips() {
-        document.getElementById('pregnancyList').innerHTML = pregnancyTips.map(t => `<div class="tip-item">🌸 ${t}</div>`).join('');
-        document.getElementById('breastfeedList').innerHTML = breastfeedingTips.map(t => `<div class="tip-item">🌸 ${t}</div>`).join('');
-    }
-    displayTips();
+    // عرض النصائح في الصفحات
+    document.getElementById('pregnancyList').innerHTML = pregnancyTips.map(t => `<div class="tip-item">🌸 ${t}</div>`).join('');
+    document.getElementById('breastfeedList').innerHTML = breastfeedingTips.map(t => `<div class="tip-item">🌸 ${t}</div>`).join('');
 
     function updateStatus(msg, isError = false) {
         statusDiv.innerHTML = msg;
         statusDiv.style.background = isError ? "#ffe0b3" : "#ffdce4";
     }
 
-    // ربط الأزرار
-    startBtn.onclick = async () => {
+    // إرسال إشعار
+    function sendNotification(tipText) {
+        if (!permissionGranted) return;
+        new Notification("🌷 نصيحة دليلكِ", {
+            body: tipText,
+            icon: "https://cdn-icons-png.flaticon.com/512/3156/3156068.png"
+        });
+        updateStatus(`📢 تم: ${tipText}`);
+    }
+
+    // إرسال نصيحة عشوائية حسب السياق
+    function sendRandomTip() {
+        const tips = currentContext === 'pregnancy' ? pregnancyTips : breastfeedingTips;
+        const random = Math.floor(Math.random() * tips.length);
+        sendNotification(tips[random]);
+    }
+
+    // بدء المؤقت (كل 30 ثانية)
+    function startTimer() {
+        if (notificationInterval) clearInterval(notificationInterval);
+        if (permissionGranted) {
+            notificationInterval = setInterval(sendRandomTip, 30000); // 30 seconds
+            updateStatus(`✅ الإشعارات مفعلة • كل 30 ثانية • ${currentContext === 'pregnancy' ? 'حمل' : 'رضاعة'}`);
+        }
+    }
+
+    function stopTimer() {
+        if (notificationInterval) {
+            clearInterval(notificationInterval);
+            notificationInterval = null;
+        }
+    }
+
+    // طلب الإذن
+    async function requestPermission() {
+        if (!("Notification" in window)) {
+            updateStatus("❌ المتصفح لا يدعم الإشعارات", true);
+            return false;
+        }
+        if (Notification.permission === 'granted') {
+            permissionGranted = true;
+            updateStatus("✅ الإذن موجود");
+            startTimer();
+            return true;
+        } else if (Notification.permission !== 'denied') {
+            const result = await Notification.requestPermission();
+            if (result === 'granted') {
+                permissionGranted = true;
+                updateStatus("✅ تم منح الإذن");
+                startTimer();
+                return true;
+            } else {
+                updateStatus("❌ تم رفض الإذن", true);
+                return false;
+            }
+        } else {
+            updateStatus("❌ الإشعارات محظورة. اذهب لإعدادات الموقع واسمح بها.", true);
+            return false;
+        }
+    }
+
+    // تغيير السياق
+    function setContext(context) {
+        currentContext = context;
+        if (permissionGranted) {
+            sendNotification(`الآن أنتِ في قسم ${context === 'pregnancy' ? 'الحمل 🤰' : 'الرضاعة 🍼'}`);
+            startTimer(); // إعادة تشغيل المؤقت مع السياق الجديد
+        }
+    }
+
+    // أزرار التنقل
+    document.getElementById('startBtn').onclick = async () => {
+        await requestPermission();
         homePage.classList.add('hidden');
         optionsPage.classList.remove('hidden');
-        await requestNotificationPermission();
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') await audioCtx.resume();
     };
-    testBtn.onclick = async () => { await sendRandomTip(true); };
+    document.getElementById('testBtn').onclick = async () => {
+        if (!permissionGranted) {
+            await requestPermission();
+        }
+        if (permissionGranted) {
+            sendRandomTip();
+        } else {
+            alert("الرجاء السماح بالإشعارات أولاً عبر زر 'ابدأي الآن'");
+        }
+    };
     document.getElementById('pregnancyBtn').onclick = () => {
         optionsPage.classList.add('hidden');
         pregnancyPageDiv.classList.remove('hidden');
@@ -444,7 +257,7 @@
         breastfeedPageDiv.classList.remove('hidden');
         setContext('breastfeed');
     };
-    document.getElementById('backHomeOptions').onclick = () => {
+    document.getElementById('backHome').onclick = () => {
         optionsPage.classList.add('hidden');
         homePage.classList.remove('hidden');
     };
@@ -464,23 +277,12 @@
         breastfeedPageDiv.classList.add('hidden');
         homePage.classList.remove('hidden');
     };
-    saveBtn.onclick = saveSettings;
 
-    function init() {
-        isNotifEnabled = notifToggle.checked;
-        isVibrateEnabled = vibrateToggle.checked;
-        intervalSeconds = parseInt(intervalSelect.value, 10);
-        if (isNaN(intervalSeconds)) intervalSeconds = 30;
-        volumePercent = parseInt(volumeSlider.value);
-        volumeSpan.innerText = volumePercent + '%';
-        isPageVisible = !document.hidden;
-        if (Notification.permission === 'granted') {
-            updateStatus("✅ الإذن موجود - ابدأي الآن");
-        } else {
-            updateStatus("🔘 اضغط 'ابدأي الآن' لمنح الإذن");
-        }
+    // عند تحميل الصفحة نتحقق من الإذن المسبق
+    if (Notification.permission === 'granted') {
+        permissionGranted = true;
+        updateStatus("✅ الإذن موجود - اضغط ابدأي الآن");
     }
-    init();
 </script>
 </body>
 </html>
