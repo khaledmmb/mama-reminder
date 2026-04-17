@@ -43,7 +43,9 @@
             border-radius: 100px;
             cursor: pointer;
             margin: 10px 0;
+            transition: transform 0.05s;
         }
+        .btn-start:active, .test-btn:active { transform: scale(0.97); }
         .test-btn { background: #9b59b6; font-size: 1.2rem; }
         .option-btn {
             background: #ffe3e9;
@@ -55,7 +57,9 @@
             border-radius: 60px;
             margin: 16px 0;
             cursor: pointer;
+            transition: transform 0.05s;
         }
+        .option-btn:active { transform: scale(0.97); background: #ffcdd9; }
         .tips-list {
             background: #fff0f3;
             border-radius: 32px;
@@ -84,6 +88,7 @@
             align-items: center;
             margin: 12px 0;
             flex-wrap: wrap;
+            gap: 10px;
         }
         select, input, .volume-slider {
             background: white;
@@ -105,7 +110,9 @@
             margin-top: 12px;
             cursor: pointer;
             font-weight: bold;
+            transition: transform 0.05s;
         }
+        .save-btn:active, .back-btn:active { transform: scale(0.97); }
         .back-btn { background: #ece2e5; color: #5c3b46; }
         .status {
             background: #ffdce4;
@@ -130,13 +137,17 @@
             padding: 12px;
             color: #ac8a94;
         }
+        @media (max-width: 480px) {
+            .btn-start, .test-btn, .option-btn { font-size: 1.2rem; padding: 14px; }
+            .control-group label { font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
 <div class="app-container">
     <div class="app-header">
         <h1>👶🏻🌷 دليلكِ</h1>
-        <p>نصائح الحمل والرضاعة • صوت عالٍ قابل للتحكم</p>
+        <p>نصائح الحمل والرضاعة • صوت عالٍ • إشعارات</p>
     </div>
 
     <div id="homePage" class="page">
@@ -168,7 +179,7 @@
             <button id="saveBtn" class="save-btn">💾 حفظ الإعدادات</button>
             <div class="status" id="statusMsg">🔔 جاهزة</div>
             <div class="install-note">
-                📱 لتحسين الإشعارات: أضف هذا الموقع إلى الشاشة الرئيسية
+                📱 لتحسين الإشعارات على الهاتف: أضف هذا الموقع إلى الشاشة الرئيسية (⋮ → إضافة إلى الشاشة الرئيسية)
             </div>
         </div>
     </div>
@@ -190,11 +201,11 @@
         <button id="backToOptionsBreast" class="back-btn">🔙 رجوع</button>
         <button id="homeFromBreast" class="back-btn">🏠 الرئيسية</button>
     </div>
-    <footer>⭐ نصائح نصية مع صوت عالٍ • إشعارات كل 30 ثانية</footer>
+    <footer>⭐ نصائح نصية مع صوت عالٍ • الإشعارات تعمل أثناء فتح التطبيق</footer>
 </div>
 
 <script>
-    // ===================== نصائح الحمل والرضاعة (نصوص فقط) =====================
+    // قوائم النصائح
     const pregnancyTips = [
         "ارفعي رجلك شويه لو حاسه بتعب",
         "اشربي ميه كتير",
@@ -205,7 +216,6 @@
         "متقفيش علي رجلك كتير",
         "نامي علي جنبك الشمال"
     ];
-
     const breastfeedingTips = [
         "اعدلي ضهرك",
         "خلي ضهرك مستقيم",
@@ -217,7 +227,7 @@
         "استرخي أثناء الرضاعة"
     ];
 
-    // عناصر الواجهة
+    // عناصر DOM
     const homePage = document.getElementById('homePage');
     const optionsPage = document.getElementById('optionsPage');
     const pregnancyPageDiv = document.getElementById('pregnancyPage');
@@ -242,13 +252,11 @@
     let lastNotificationTime = 0;
     let audioCtx = null;
 
-    // تحديث عرض قيمة الصوت
     volumeSlider.addEventListener('input', () => {
         volumePercent = parseInt(volumeSlider.value);
         volumeSpan.innerText = volumePercent + '%';
     });
 
-    // تشغيل صوت "بييب" عالٍ باستخدام Web Audio مع Gain
     async function playBeep() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -256,12 +264,12 @@
         if (audioCtx.state === 'suspended') {
             await audioCtx.resume();
         }
-        const gainValue = volumePercent / 100;
+        const gainValue = Math.min(volumePercent / 100, 2.0);
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
-        oscillator.frequency.value = 880; // نغمة عالية
+        oscillator.frequency.value = 880;
         gainNode.gain.value = gainValue;
         oscillator.type = "sine";
         oscillator.start();
@@ -269,21 +277,19 @@
         oscillator.stop(audioCtx.currentTime + 0.5);
     }
 
-    // الاهتزاز
     function vibrate() {
         if (isVibrateEnabled && navigator.vibrate) {
             navigator.vibrate(200);
         }
     }
 
-    // عرض إشعار نصي
     function showNotification(tipText) {
         if (!isNotifEnabled) return false;
         if (Notification.permission !== 'granted') return false;
         const options = {
             body: tipText,
             icon: "https://cdn-icons-png.flaticon.com/512/3156/3156068.png",
-            vibrate: isVibrateEnabled ? [200, 100, 200] : undefined
+            vibrate: isVibrateEnabled ? [200,100,200] : undefined
         };
         if (!isVibrateEnabled) options.silent = true;
         const notification = new Notification("🌷 نصيحة دليلكِ", options);
@@ -292,7 +298,6 @@
         return true;
     }
 
-    // إرسال نصيحة عشوائية مع الصوت
     async function sendRandomTip(showAlerts = false) {
         if (!isNotifEnabled) {
             if (showAlerts) alert("⚠️ الإشعارات معطلة في الإعدادات.");
@@ -306,19 +311,16 @@
             if (showAlerts) alert("⚠️ التطبيق في الخلفية، افتحه أولاً.");
             return false;
         }
-
-        const tipsList = (currentContext === 'pregnancy') ? pregnancyTips : breastfeedingTips;
-        const randomIndex = Math.floor(Math.random() * tipsList.length);
-        const tipText = tipsList[randomIndex];
-
-        showNotification(tipText);
+        const tips = (currentContext === 'pregnancy') ? pregnancyTips : breastfeedingTips;
+        const randomIndex = Math.floor(Math.random() * tips.length);
+        const tip = tips[randomIndex];
+        showNotification(tip);
         await playBeep();
         vibrate();
-        updateStatus(`📢 تم: ${tipText} (جهارة ${volumePercent}%)`);
+        updateStatus(`📢 تم: ${tip} (جهارة ${volumePercent}%)`);
         return true;
     }
 
-    // جدولة الإشعارات
     function scheduleNext() {
         if (timerId) clearTimeout(timerId);
         if (!isNotifEnabled || Notification.permission !== 'granted' || !isPageVisible) return;
@@ -338,7 +340,7 @@
             scheduleNext();
             updateStatus(`🔔 مفعلة • كل ${intervalSeconds} ثانية • ${currentContext === 'pregnancy' ? 'حمل' : 'رضاعة'} • جهارة ${volumePercent}%`);
         } else {
-            updateStatus(isNotifEnabled ? "⏸️ معلقة (الصفحة غير مرئية أو الإذن مفقود)" : "🔕 معطلة");
+            updateStatus(isNotifEnabled ? "⏸️ معلقة" : "🔕 معطلة");
         }
     }
 
@@ -391,12 +393,11 @@
         if (isNaN(intervalSeconds)) intervalSeconds = 30;
         volumePercent = parseInt(volumeSlider.value);
         volumeSpan.innerText = volumePercent + '%';
-
         stopScheduler();
         if (isNotifEnabled && Notification.permission === 'granted' && isPageVisible) {
             restartScheduler();
             showNotification("تم حفظ الإعدادات 🔊");
-            playBeep(); // صوت تجريبي
+            playBeep();
         } else if (isNotifEnabled && Notification.permission !== 'granted') {
             requestNotificationPermission().then(() => restartScheduler());
         } else {
@@ -413,28 +414,26 @@
         restartScheduler();
     }
 
-    // عرض قوائم النصائح في الصفحات
     function displayTips() {
-        const pregContainer = document.getElementById('pregnancyList');
-        const breastContainer = document.getElementById('breastfeedList');
-        pregContainer.innerHTML = pregnancyTips.map(tip => `<div class="tip-item">🌸 ${tip}</div>`).join('');
-        breastContainer.innerHTML = breastfeedingTips.map(tip => `<div class="tip-item">🌸 ${tip}</div>`).join('');
+        document.getElementById('pregnancyList').innerHTML = pregnancyTips.map(t => `<div class="tip-item">🌸 ${t}</div>`).join('');
+        document.getElementById('breastfeedList').innerHTML = breastfeedingTips.map(t => `<div class="tip-item">🌸 ${t}</div>`).join('');
     }
     displayTips();
+
+    function updateStatus(msg, isError = false) {
+        statusDiv.innerHTML = msg;
+        statusDiv.style.background = isError ? "#ffe0b3" : "#ffdce4";
+    }
 
     // ربط الأزرار
     startBtn.onclick = async () => {
         homePage.classList.add('hidden');
         optionsPage.classList.remove('hidden');
         await requestNotificationPermission();
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') await audioCtx.resume();
     };
-    testBtn.onclick = async () => {
-        await sendRandomTip(true);
-    };
+    testBtn.onclick = async () => { await sendRandomTip(true); };
     document.getElementById('pregnancyBtn').onclick = () => {
         optionsPage.classList.add('hidden');
         pregnancyPageDiv.classList.remove('hidden');
