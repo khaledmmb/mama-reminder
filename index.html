@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>دليلكِ الصوتي - نصائح الحمل والرضاعة</title>
+    <title>دليلكِ الصوتي - جهارة صوت قابلة للزيادة</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
         body {
@@ -85,11 +85,16 @@
             margin: 12px 0;
             flex-wrap: wrap;
         }
-        select, input {
+        select, input, .volume-slider {
             background: white;
             border: 1px solid #ffb7c9;
             padding: 8px 12px;
             border-radius: 40px;
+            font-size: 0.9rem;
+        }
+        .volume-slider {
+            width: 150px;
+            cursor: pointer;
         }
         .save-btn, .back-btn {
             background: #ff9eb5;
@@ -136,15 +141,15 @@
 <body>
 <div class="app-container">
     <div class="app-header">
-        <h1>👶🏻🌷 دليلكِ الصوتي</h1>
-        <p>نصائح مسموعة مع إشعارات باسم الملف</p>
+        <h1>🔊 دليلكِ الصوتي</h1>
+        <p>نصائح مسموعة بصوت أعلى (حتى 200%)</p>
     </div>
 
     <div id="homePage" class="page">
         <button id="startBtn" class="btn-start">✨ ابدأي الآن ✨</button>
         <button id="testBtn" class="test-btn">🔔 اختبر الإشعار</button>
         <div class="notification-panel">
-            <h3 style="color:#b13e5e;">⚙️ إعدادات الإشعارات</h3>
+            <h3 style="color:#b13e5e;">⚙️ إعدادات الصوت والإشعارات</h3>
             <div class="control-group">
                 <label>📢 تفعيل الإشعارات:</label>
                 <input type="checkbox" id="notifToggle" checked>
@@ -158,8 +163,9 @@
                 </select>
             </div>
             <div class="control-group">
-                <label>🔊 تشغيل الصوت:</label>
-                <input type="checkbox" id="soundToggle" checked>
+                <label>🔊 جهارة الصوت (بالمئة):</label>
+                <input type="range" id="volumeBoost" class="volume-slider" min="50" max="200" value="150" step="5">
+                <span id="volumeValue">150%</span>
             </div>
             <div class="control-group">
                 <label>📳 الاهتزاز:</label>
@@ -192,13 +198,12 @@
         <button id="backToOptionsBreast" class="back-btn">🔙 رجوع</button>
         <button id="homeFromBreast" class="back-btn">🏠 الرئيسية</button>
     </div>
-    <footer>⭐ الإشعارات تعرض اسم الملف الصوتي وتشغله</footer>
+    <footer>⭐ تحكم بجهارة الصوت حتى 200% • إشعارات باسم النصيحة</footer>
 </div>
 
 <script>
     // ============================================================
-    // ✅ قوائم الملفات الصوتية (بدون امتداد .ogg)
-    // تم تعديل أسماء الحمل لتطابق الصورة المرفقة
+    // قوائم الملفات الصوتية (بدون امتداد) - أدخل أسماءك هنا كما هي بالضبط
     // ============================================================
     const pregnancySoundFiles = [
         "ارفعي_رجلك_شويه_لو_حاسه_بتعب",
@@ -235,7 +240,8 @@
     const breastfeedPageDiv = document.getElementById('breastfeedPage');
     const notifToggle = document.getElementById('notifToggle');
     const intervalSelect = document.getElementById('intervalSelect');
-    const soundToggle = document.getElementById('soundToggle');
+    const volumeBoostSlider = document.getElementById('volumeBoost');
+    const volumeValueSpan = document.getElementById('volumeValue');
     const vibrateToggle = document.getElementById('vibrateToggle');
     const saveBtn = document.getElementById('saveBtn');
     const statusDiv = document.getElementById('statusMsg');
@@ -244,18 +250,75 @@
 
     let currentContext = "pregnancy";
     let isNotifEnabled = true;
-    let isSoundEnabled = true;
     let isVibrateEnabled = true;
     let intervalSeconds = 30;
+    let volumePercent = 150;   // 150% = 1.5 gain
     let timerId = null;
     let isPageVisible = true;
     let lastNotificationTime = 0;
+    let audioContext = null;    // سياق Web Audio لتطبيق gain
+    let currentGainNode = null;
 
+    // تحديث عرض قيمة الصوت
+    volumeBoostSlider.addEventListener('input', () => {
+        volumePercent = parseInt(volumeBoostSlider.value);
+        volumeValueSpan.innerText = volumePercent + '%';
+    });
+
+    // دالة لإنشاء AudioContext وتشغيل الملف مع gain مخصص
+    async function playSoundWithGain(fileName, folder) {
+        if (!isSoundEnabled()) return false; // نتحقق من الصوت من خلال isSoundEnabled (سنضيفها لاحقاً)
+        // نستخدم isSoundEnabled من الإعدادات
+        if (!window._soundEnabled) return false;
+        
+        const path = `${AUDIO_BASE}${folder}${fileName}${EXT}`;
+        try {
+            // جلب الملف كـ ArrayBuffer
+            const response = await fetch(path);
+            if (!response.ok) throw new Error('ملف غير موجود');
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            
+            // إنشاء مصدر الصوت
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            
+            // عقدة التحكم في الصوت (Gain)
+            const gainNode = audioContext.createGain();
+            const gainValue = volumePercent / 100;
+            gainNode.gain.value = Math.min(gainValue, 2.0); // قصوى 200%
+            
+            source.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            source.start();
+            return true;
+        } catch (err) {
+            console.warn("خطأ في تشغيل الصوت:", err);
+            updateStatus(`⚠️ فشل تشغيل: ${fileName}`, true);
+            return false;
+        }
+    }
+
+    // وظيفة لتشغيل الصوت بالطريقة القديمة (بديل إذا فشل Web Audio)
+    function playSoundFallback(fileName, folder) {
+        if (!window._soundEnabled) return;
+        const path = `${AUDIO_BASE}${folder}${fileName}${EXT}`;
+        const audio = new Audio(path);
+        audio.volume = Math.min(volumePercent / 100, 1.0); // لا يمكن تجاوز 1 في Audio العادي
+        audio.play().catch(e => console.warn(e));
+    }
+
+    // متغير لتخزين إعدادات الصوت
+    let _soundEnabled = true;
+    function isSoundEnabled() { return _soundEnabled; }
+
+    // تحديث واجهة الحالة
     function updateStatus(msg, isError = false) {
         statusDiv.innerHTML = msg;
         statusDiv.style.background = isError ? "#ffe0b3" : "#ffdce4";
     }
 
+    // عرض قوائم الملفات
     function displayFileLists() {
         const pregContainer = document.getElementById('pregnancyList');
         const breastContainer = document.getElementById('breastfeedList');
@@ -268,32 +331,14 @@
     }
     displayFileLists();
 
-    function playSoundFile(fileName, folder) {
-        if (!isSoundEnabled) return Promise.resolve(false);
-        return new Promise((resolve) => {
-            const path = `${AUDIO_BASE}${folder}${fileName}${EXT}`;
-            const audio = new Audio(path);
-            audio.oncanplaythrough = () => {
-                audio.play().then(() => resolve(true)).catch(err => {
-                    console.warn("خطأ في التشغيل:", err);
-                    resolve(false);
-                });
-            };
-            audio.onerror = () => {
-                console.warn(`الملف غير موجود: ${path}`);
-                updateStatus(`⚠️ ملف غير موجود: ${fileName}`, true);
-                resolve(false);
-            };
-            audio.load();
-        });
-    }
-
+    // الاهتزاز
     function vibrate() {
         if (isVibrateEnabled && navigator.vibrate) {
             navigator.vibrate(200);
         }
     }
 
+    // عرض إشعار نصي
     function showNotificationText(fileName) {
         if (!isNotifEnabled) return false;
         if (Notification.permission !== 'granted') return false;
@@ -303,15 +348,14 @@
             icon: "https://cdn-icons-png.flaticon.com/512/3156/3156068.png",
             vibrate: isVibrateEnabled ? [200, 100, 200] : undefined
         };
-        if (!isVibrateEnabled) {
-            options.silent = true;
-        }
+        if (!isVibrateEnabled) options.silent = true;
         const notification = new Notification("🌷 نصيحة دليلكِ", options);
         setTimeout(() => notification.close(), 6000);
         lastNotificationTime = Date.now();
         return true;
     }
 
+    // إرسال نصيحة عشوائية مع الصوت الأعلى
     async function sendRandomTip(showAlerts = false) {
         if (!isNotifEnabled) {
             if (showAlerts) alert("⚠️ الإشعارات معطلة في الإعدادات.");
@@ -330,24 +374,29 @@
         let folder = (currentContext === 'pregnancy') ? PREG_FOLDER : BF_FOLDER;
 
         if (soundList.length === 0) {
-            if (showAlerts) alert("⚠️ لا توجد ملفات صوتية في قائمة " + (currentContext === 'pregnancy' ? 'الحمل' : 'الرضاعة'));
+            if (showAlerts) alert("⚠️ لا توجد ملفات صوتية في القائمة");
             return false;
         }
 
         const randomIndex = Math.floor(Math.random() * soundList.length);
         const fileName = soundList[randomIndex];
 
-        const notificationShown = showNotificationText(fileName);
-        if (!notificationShown && showAlerts) alert("⚠️ فشل عرض الإشعار، تأكد من الإذن.");
+        showNotificationText(fileName);
 
-        if (isSoundEnabled) {
-            await playSoundFile(fileName, folder);
+        if (_soundEnabled) {
+            // استخدام Web Audio مع gain
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContext.state === 'suspended') await audioContext.resume();
+            }
+            await playSoundWithGain(fileName, folder).catch(() => playSoundFallback(fileName, folder));
         }
         vibrate();
-        updateStatus(`📢 تم: ${fileName.replace(/_/g, ' ')}`);
+        updateStatus(`📢 تم: ${fileName.replace(/_/g, ' ')} (جهارة ${volumePercent}%)`);
         return true;
     }
 
+    // جدولة الإشعارات
     function scheduleNext() {
         if (timerId) clearTimeout(timerId);
         if (!isNotifEnabled || Notification.permission !== 'granted' || !isPageVisible) return;
@@ -365,9 +414,9 @@
         stopScheduler();
         if (isNotifEnabled && Notification.permission === 'granted' && isPageVisible) {
             scheduleNext();
-            updateStatus(`🔔 مفعلة • كل ${intervalSeconds} ثانية • ${currentContext === 'pregnancy' ? 'حمل' : 'رضاعة'}`);
+            updateStatus(`🔔 مفعلة • كل ${intervalSeconds} ثانية • ${currentContext === 'pregnancy' ? 'حمل' : 'رضاعة'} • جهارة ${volumePercent}%`);
         } else {
-            updateStatus(isNotifEnabled ? "⏸️ معلقة (الصفحة غير مرئية أو الإذن مفقود)" : "🔕 معطلة");
+            updateStatus(isNotifEnabled ? "⏸️ معلقة" : "🔕 معطلة");
         }
     }
 
@@ -375,9 +424,7 @@
         if (!isPageVisible) return;
         if (isNotifEnabled && Notification.permission === 'granted') {
             const now = Date.now();
-            if (now - lastNotificationTime > 10000) {
-                sendRandomTip(false);
-            }
+            if (now - lastNotificationTime > 10000) sendRandomTip(false);
             restartScheduler();
         }
     }
@@ -410,26 +457,33 @@
                 }
             });
         } else {
-            updateStatus("❌ الإشعارات محظورة - اذهب لإعدادات الموقع واسمح بها", true);
+            updateStatus("❌ الإشعارات محظورة - اذهب لإعدادات الموقع", true);
             return Promise.resolve(false);
         }
     }
 
     function saveSettings() {
         isNotifEnabled = notifToggle.checked;
-        isSoundEnabled = soundToggle.checked;
+        _soundEnabled = true; // الصوت مفعل دائماً (لا يوجد زر لإيقافه، فقط جهارة)
         isVibrateEnabled = vibrateToggle.checked;
         intervalSeconds = parseInt(intervalSelect.value, 10);
         if (isNaN(intervalSeconds)) intervalSeconds = 30;
-
+        volumePercent = parseInt(volumeBoostSlider.value);
+        volumeValueSpan.innerText = volumePercent + '%';
+        
         stopScheduler();
         if (isNotifEnabled && Notification.permission === 'granted' && isPageVisible) {
             restartScheduler();
-            showNotificationText("تم حفظ الإعدادات ✅");
+            showNotificationText("تم حفظ الإعدادات 🔊");
+            // اختبار الصوت بأول ملف
             let firstFile = (currentContext === 'pregnancy') ? pregnancySoundFiles[0] : breastfeedingSoundFiles[0];
-            if (firstFile && isSoundEnabled) {
+            if (firstFile) {
                 let folder = (currentContext === 'pregnancy') ? PREG_FOLDER : BF_FOLDER;
-                playSoundFile(firstFile, folder);
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioContext.state === 'suspended') audioContext.resume();
+                playSoundWithGain(firstFile, folder).catch(() => playSoundFallback(firstFile, folder));
             }
         } else if (isNotifEnabled && Notification.permission !== 'granted') {
             requestNotificationPermission().then(() => restartScheduler());
@@ -446,11 +500,16 @@
         restartScheduler();
     }
 
-    // ربط الأزرار
+    // الأزرار
     startBtn.onclick = async () => {
         homePage.classList.add('hidden');
         optionsPage.classList.remove('hidden');
         await requestNotificationPermission();
+        // تهيئة AudioContext
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioContext.state === 'suspended') await audioContext.resume();
     };
     testBtn.onclick = async () => {
         await sendRandomTip(true);
@@ -489,10 +548,12 @@
 
     function init() {
         isNotifEnabled = notifToggle.checked;
-        isSoundEnabled = soundToggle.checked;
+        _soundEnabled = true;
         isVibrateEnabled = vibrateToggle.checked;
         intervalSeconds = parseInt(intervalSelect.value, 10);
         if (isNaN(intervalSeconds)) intervalSeconds = 30;
+        volumePercent = parseInt(volumeBoostSlider.value);
+        volumeValueSpan.innerText = volumePercent + '%';
         isPageVisible = !document.hidden;
         if (Notification.permission === 'granted') {
             updateStatus("✅ الإذن موجود - ابدأي الآن");
@@ -500,7 +561,7 @@
             updateStatus("🔘 اضغط 'ابدأي الآن' لمنح الإذن");
         }
         if (pregnancySoundFiles.length === 0 || breastfeedingSoundFiles.length === 0) {
-            updateStatus("⚠️ أضيفي أسماء الملفات في قوائم pregnancySoundFiles و breastfeedingSoundFiles", true);
+            updateStatus("⚠️ أضيفي أسماء الملفات في القوائم", true);
         }
     }
     init();
