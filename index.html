@@ -197,32 +197,32 @@
 
 <script>
     // ============================================================
-    // 1️⃣ ضع هنا أسماء ملفات الحمل (بدون .ogg) كما هي في مجلد /audio/pregnancy/
+    // ✅ قوائم الملفات الصوتية بعد استبدال المسافات بـ _
+    // تأكد من تطابق هذه الأسماء مع أسماء الملفات في مجلدات /audio/
+    // ============================================================
     const pregnancySoundFiles = [
-        "ارفعي رجلك شويه لو حاسه بتعب",
-        "اشربي ميه كتير",
-        "امشي شويه حتى لو عشر دقايق",
-        "خدي نفس عميق",
-        "البسي حاجه مريحه مش ديقه",
-        "كلي وجبات خفيفه علي مدار اليوم",
-        "متقفيش علي رجلك كتير",
-        "نامي علي جنبك الشمال"
+        "ارفعي_رجلك_شويه_لو_حاسه_بتعب",
+        "اشربي_ميه_كتير",
+        "امشي_شويه_حتى_لو_عشر_دقايق",
+        "خدي_نفس_عميق",
+        "البسي_حاجه_مريحه_مش_ديقه",
+        "كلي_وجبات_خفيفه_علي_مدار_اليوم",
+        "متقفيش_علي_رجلك_كتير",
+        "نامي_علي_جنبك_الشمال"
     ];
 
-    // 2️⃣ ضع هنا أسماء ملفات الرضاعة (بدون .ogg) كما هي في مجلد /audio/breastfeeding/
     const breastfeedingSoundFiles = [
-        "اعدلي ضهرك",
-        "خلي ضهرك مستقيم",
-        "ريحي كتفك",
-        "قربي الطفل منك",
-        "متتنيش رقبتك",
-        "متشيليش حاجه تقيله",
-        "وقت التمارين",
-        "وقت الرضاعه"
+        "اعدلي_ضهرك",
+        "خلي_ضهرك_مستقيم",
+        "ريحي_كتفك",
+        "قربي_الطفل_منك",
+        "متتنيش_رقبتك",
+        "متشيليش_حاجه_تقيله",
+        "وقت_التمارين",
+        "وقت_الرضاعه"
     ];
     // ============================================================
 
-    // إعدادات المسارات (لا تغيريها إلا إذا كان مجلد الصوت مختلفاً)
     const AUDIO_BASE = '/audio/';
     const PREG_FOLDER = 'pregnancy/';
     const BF_FOLDER = 'breastfeeding/';
@@ -242,7 +242,6 @@
     const testBtn = document.getElementById('testBtn');
     const startBtn = document.getElementById('startBtn');
 
-    // متغيرات الحالة
     let currentContext = "pregnancy";
     let isNotifEnabled = true;
     let isSoundEnabled = true;
@@ -257,20 +256,18 @@
         statusDiv.style.background = isError ? "#ffe0b3" : "#ffdce4";
     }
 
-    // عرض قائمة الملفات في الصفحات
     function displayFileLists() {
         const pregContainer = document.getElementById('pregnancyList');
         const breastContainer = document.getElementById('breastfeedList');
         const pregCountSpan = document.getElementById('pregnancyCount');
         const breastCountSpan = document.getElementById('breastfeedCount');
-        pregContainer.innerHTML = pregnancySoundFiles.map(name => `<div class="tip-item">🎵 ${name}</div>`).join('');
-        breastContainer.innerHTML = breastfeedingSoundFiles.map(name => `<div class="tip-item">🎵 ${name}</div>`).join('');
+        pregContainer.innerHTML = pregnancySoundFiles.map(name => `<div class="tip-item">🎵 ${name.replace(/_/g, ' ')}</div>`).join('');
+        breastContainer.innerHTML = breastfeedingSoundFiles.map(name => `<div class="tip-item">🎵 ${name.replace(/_/g, ' ')}</div>`).join('');
         pregCountSpan.innerText = `📂 عدد نصائح الحمل: ${pregnancySoundFiles.length}`;
         breastCountSpan.innerText = `📂 عدد نصائح الرضاعة: ${breastfeedingSoundFiles.length}`;
     }
     displayFileLists();
 
-    // تشغيل ملف صوتي
     function playSoundFile(fileName, folder) {
         if (!isSoundEnabled) return Promise.resolve(false);
         return new Promise((resolve) => {
@@ -291,36 +288,30 @@
         });
     }
 
-    // الاهتزاز
     function vibrate() {
         if (isVibrateEnabled && navigator.vibrate) {
             navigator.vibrate(200);
         }
     }
 
-    // عرض إشعار نصي (تم إصلاح خطأ silent + vibrate)
     function showNotificationText(fileName) {
         if (!isNotifEnabled) return false;
         if (Notification.permission !== 'granted') return false;
-        
-        // إصلاح: لا نستخدم silent:true مع vibrate
+        const displayName = fileName.replace(/_/g, ' ');
         const options = {
-            body: fileName,
+            body: displayName,
             icon: "https://cdn-icons-png.flaticon.com/512/3156/3156068.png",
             vibrate: isVibrateEnabled ? [200, 100, 200] : undefined
         };
-        // إذا كان الاهتزاز مفعلاً، لا نضع silent:true (لأنهما يتعارضان)
         if (!isVibrateEnabled) {
             options.silent = true;
         }
-        
         const notification = new Notification("🌷 نصيحة دليلكِ", options);
         setTimeout(() => notification.close(), 6000);
         lastNotificationTime = Date.now();
         return true;
     }
 
-    // إرسال نصيحة عشوائية
     async function sendRandomTip(showAlerts = false) {
         if (!isNotifEnabled) {
             if (showAlerts) alert("⚠️ الإشعارات معطلة في الإعدادات.");
@@ -353,11 +344,10 @@
             await playSoundFile(fileName, folder);
         }
         vibrate();
-        updateStatus(`📢 تم: ${fileName}`);
+        updateStatus(`📢 تم: ${fileName.replace(/_/g, ' ')}`);
         return true;
     }
 
-    // جدولة الإشعارات
     function scheduleNext() {
         if (timerId) clearTimeout(timerId);
         if (!isNotifEnabled || Notification.permission !== 'granted' || !isPageVisible) return;
@@ -381,7 +371,6 @@
         }
     }
 
-    // عند عودة الصفحة للرؤية
     function onPageVisible() {
         if (!isPageVisible) return;
         if (isNotifEnabled && Notification.permission === 'granted') {
@@ -393,7 +382,6 @@
         }
     }
 
-    // مراقبة رؤية الصفحة
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             isPageVisible = false;
@@ -405,7 +393,6 @@
         }
     });
 
-    // طلب إذن الإشعارات
     function requestNotificationPermission() {
         if (Notification.permission === 'granted') {
             updateStatus("✅ الإذن موجود");
@@ -428,7 +415,6 @@
         }
     }
 
-    // حفظ الإعدادات
     function saveSettings() {
         isNotifEnabled = notifToggle.checked;
         isSoundEnabled = soundToggle.checked;
@@ -452,7 +438,6 @@
         }
     }
 
-    // تغيير السياق (حمل/رضاعة)
     function setContext(context) {
         currentContext = context;
         if (isNotifEnabled && Notification.permission === 'granted' && isPageVisible) {
@@ -461,7 +446,7 @@
         restartScheduler();
     }
 
-    // ========== ربط الأزرار ==========
+    // ربط الأزرار
     startBtn.onclick = async () => {
         homePage.classList.add('hidden');
         optionsPage.classList.remove('hidden');
@@ -502,7 +487,6 @@
     };
     saveBtn.onclick = saveSettings;
 
-    // التهيئة
     function init() {
         isNotifEnabled = notifToggle.checked;
         isSoundEnabled = soundToggle.checked;
